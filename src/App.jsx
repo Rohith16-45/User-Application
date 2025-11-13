@@ -1,17 +1,11 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import RegisterUser from "./pages/auth/registerUser";
-import Login from "./pages/auth/Login";
-import VerifyEmail from "./pages/auth/verifyUser";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./router/appRoutes";
 
 function App() {
   return (
     <>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<RegisterUser />} />
-          <Route path="verify-email/:userId/:token" element={<VerifyEmail />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </>
   );

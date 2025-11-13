@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { emailVerify } from "../../services/authService";
+import { Mail, CheckCircle, Shield } from "lucide-react";
 
 export default function VerifyEmail() {
   const { userId, token } = useParams();
@@ -10,7 +11,7 @@ export default function VerifyEmail() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem("verifyEmail");
+    const savedEmail = localStorage.getItem("registeredEmail");
     if (savedEmail) setEmail(savedEmail);
   }, []);
 
@@ -19,7 +20,7 @@ export default function VerifyEmail() {
 
     emailVerify(userId, token)
       .then(() => {
-        localStorage.removeItem("verifyEmail");
+        localStorage.removeItem("registeredEmail")
         navigate("/login");
       })
       .finally(() => {
@@ -28,39 +29,76 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white p-8 w-full max-w-md rounded-2xl shadow-xl border relative">
-        <div className="absolute inset-0 rounded-2xl p-0.5 bg-linear-to-r from-purple-500 to-indigo-600 -z-10"></div>
-
-        <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-          Verify Your Email
-        </h2>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              disabled
-              className="w-full px-4 py-2 border rounded-lg bg-gray-200 text-gray-700 cursor-not-allowed"
-            />
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <Shield className="w-8 h-8 text-blue-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-800">
+              Verify Your Email
+            </h2>
+            <p className="text-gray-500 mt-2">
+              Confirm your email address to activate your account
+            </p>
           </div>
 
-          <button
-            onClick={handleVerify}
-            disabled={loading || !userId || !token}
-            className={`w-full py-2 rounded-lg text-white font-semibold transition ${
-              loading || !userId || !token
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-purple-600 hover:bg-purple-700"
-            }`}
-          >
-            {loading ? "Verifying..." : "Verify Email"}
-          </button>
+          {/* Form */}
+          <div className="space-y-6">
+            {/* Email Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  disabled
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Verify Button */}
+            <button
+              onClick={handleVerify}
+              disabled={loading || !userId || !token}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Verify Email
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Info Box */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> This verification link is unique to your
+              account. Please click the button above to complete your
+              registration.
+            </p>
+          </div>
         </div>
+
+        {/* Footer Text */}
+        <p className="text-center text-gray-500 text-sm mt-6">
+          Protected by security protocols
+        </p>
       </div>
     </div>
   );
