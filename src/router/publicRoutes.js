@@ -1,21 +1,20 @@
 import Login from "../pages/auth/Login";
 import RegisterUser from "../pages/auth/registerUser";
 import VerifyEmail from "../pages/auth/verifyUser";
-import UpdateUser from "../pages/users/updateUser";
 
 export const publicRoutes = [
   {
     path: "/",
-    element: RegisterUser,
+    element: Login,
   },
   {
-    path: "/login",
-    element: Login,
+    path: "/register",
+    element: RegisterUser,
   },
   {
     path: "/verify-email/:userId/:token",
     element: VerifyEmail,
   },
- 
+
   //add more public routes here
 ];

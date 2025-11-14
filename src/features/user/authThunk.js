@@ -5,8 +5,8 @@ import {
   login,
   register,
   updateUser,
-} from "../../services/authService";
-import { getAllUsers } from "../../services/authService";
+} from "../../services/userService";
+import { getAllUsers } from "../../services/userService";
 
 export const registerThunk = createAsyncThunk(
   "/register",

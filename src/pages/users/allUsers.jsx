@@ -3,19 +3,20 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteUserThunk,
   getAllUsersThunk,
-} from "../../features/auth/authThunk";
+} from "../../features/user/authThunk";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 
 export default function AllUsers() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { users, loading, totalRecords } = useSelector((state) => state.user);
+
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { users, loading } = useSelector((state) => state.auth);
+  const totalPages = Math.ceil(totalRecords / pageSize);
 
   useEffect(() => {
     dispatch(getAllUsersThunk({ pageNumber, pageSize }));
@@ -49,14 +50,6 @@ export default function AllUsers() {
     setPageNumber(1);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-3xl font-bold text-gray-800 mb-6">All Users</h2>
@@ -81,37 +74,56 @@ export default function AllUsers() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users?.map((u, index) => (
-                <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {(pageNumber - 1) * pageSize + index + 1}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {u.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {u.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleUpdate(u.id)}
-                        className="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Edit user"
-                      >
-                        <Pencil size={18} />
-                      </button>
-                      <button
-                        onClick={() => openDeleteModal(u)}
-                        className="inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete user"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+              {loading ? (
+                <tr>
+                  <td colSpan="4" className="px-6 py-16">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : users?.length > 0 ? (
+                users.map((u, index) => (
+                  <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {(pageNumber - 1) * pageSize + index + 1}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {u.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {u.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleUpdate(u.id)}
+                          className="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit user"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <button
+                          onClick={() => openDeleteModal(u)}
+                          className="inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete user"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="px-6 py-8 text-center text-gray-500"
+                  >
+                    No users found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -143,10 +155,12 @@ export default function AllUsers() {
             >
               Previous
             </button>
-            <span className="text-sm text-gray-700">Page {pageNumber}</span>
+            <span className="text-sm text-gray-700">
+              Page {pageNumber} of {totalPages}
+            </span>
             <button
               onClick={() => setPageNumber((prev) => prev + 1)}
-              disabled={users?.length < pageSize}
+              disabled={pageNumber === totalPages}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next

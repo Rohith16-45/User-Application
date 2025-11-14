@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getAllUsers } from "../../services/authService";
+import { getAllUsers } from "../../services/userService";
 import {
   Chart,
   CategoryScale,
@@ -28,7 +28,6 @@ Chart.register(
 export default function Home() {
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [loading, setLoading] = useState(true);
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
@@ -37,20 +36,13 @@ export default function Home() {
   }, []);
 
   const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await getAllUsers(1, 1000);
-      setUsers(response.data);
-      setTotalUsers(response.totalRecords);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    } finally {
-      setLoading(false);
-    }
+    const response = await getAllUsers(1, 1000);
+    setUsers(response.data);
+    setTotalUsers(response.totalRecords);
   };
 
   useEffect(() => {
-    if (users.length > 0 && chartRef.current) {
+    if (chartRef.current) {
       createChart();
     }
 
@@ -62,7 +54,6 @@ export default function Home() {
   }, [users]);
 
   const createChart = () => {
-    // Process data to count users by year
     const monthNames = [
       "Jan",
       "Feb",
@@ -77,18 +68,21 @@ export default function Home() {
       "Nov",
       "Dec",
     ];
-    const usersByMonth = {};
-    users.forEach((user) => {
-      const date = new Date(user.createAt);
-      const year = date.getFullYear();
-      if (year === 2025) {
-        const month = date.getMonth();
-        usersByMonth[month] = (usersByMonth[month] || 0) + 1;
-      }
-    });
 
-    const months = monthNames;
-    const counts = monthNames.map((_, index) => usersByMonth[index] || 0);
+    let counts = Array(12).fill(0);
+
+    if (users.length > 0) {
+      const usersByMonth = {};
+      users.forEach((user) => {
+        const date = new Date(user.createAt);
+        const year = date.getFullYear();
+        if (year === 2025) {
+          const month = date.getMonth();
+          usersByMonth[month] = (usersByMonth[month] || 0) + 1;
+        }
+      });
+      counts = monthNames.map((_, index) => usersByMonth[index] || 0);
+    }
 
     // Destroy existing chart
     if (chartInstance.current) {
@@ -100,7 +94,7 @@ export default function Home() {
     chartInstance.current = new Chart(ctx, {
       type: "line",
       data: {
-        labels: months,
+        labels: monthNames,
         datasets: [
           {
             label: "Users Created",
@@ -173,16 +167,12 @@ export default function Home() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600 font-medium">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const verifiedUsers = users.filter((u) => u.isEmailVerified).length;
+  const pendingUsers = users.filter((u) => !u.isEmailVerified).length;
+  const latestRegistration =
+    users.length > 0
+      ? new Date(users[users.length - 1].createAt).toLocaleDateString()
+      : "N/A";
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -260,9 +250,7 @@ export default function Home() {
             <p className="text-gray-500 text-sm font-medium mb-1">
               Verified Users
             </p>
-            <p className="text-3xl font-bold text-gray-900">
-              {users.filter((u) => u.isEmailVerified).length}
-            </p>
+            <p className="text-3xl font-bold text-gray-900">{verifiedUsers}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6 border border-yellow-100">
@@ -286,9 +274,7 @@ export default function Home() {
             <p className="text-gray-500 text-sm font-medium mb-1">
               Pending Verification
             </p>
-            <p className="text-3xl font-bold text-gray-900">
-              {users.filter((u) => !u.isEmailVerified).length}
-            </p>
+            <p className="text-3xl font-bold text-gray-900">{pendingUsers}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6 border border-blue-100">
@@ -313,11 +299,7 @@ export default function Home() {
               Latest Registration
             </p>
             <p className="text-lg font-bold text-gray-900">
-              {users.length > 0
-                ? new Date(
-                    users[users.length - 1].createAt
-                  ).toLocaleDateString()
-                : "N/A"}
+              {latestRegistration}
             </p>
           </div>
         </div>
