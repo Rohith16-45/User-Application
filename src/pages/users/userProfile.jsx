@@ -33,15 +33,12 @@ export default function UserProfile() {
     setUserData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Enable editing mode
   const handleUpdateProfile = () => {
     setIsEditing(true);
   };
 
-  // Cancel editing
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset form to original values
     if (loggedUser) {
       setUserData({
         name: loggedUser.name,
@@ -51,7 +48,6 @@ export default function UserProfile() {
     }
   };
 
-  // Save changes
   const handleSubmit = async (e) => {
     e.preventDefault();
 
