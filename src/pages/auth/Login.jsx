@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginThunk } from "../../features/auth/authThunk";
+import { loginThunk } from "../../features/user/authThunk";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, LogIn } from "lucide-react";
 
@@ -11,7 +11,7 @@ export default function Login() {
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setData((prev) => ({
@@ -117,7 +117,7 @@ export default function Login() {
           {/* Register Link */}
           <div className="text-center">
             <Link
-              to="/"
+              to="/register"
               className="text-blue-600 hover:text-blue-700 font-medium hover:underline transition"
             >
               Create a new account

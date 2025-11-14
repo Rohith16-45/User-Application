@@ -1,6 +1,7 @@
 import { showToast } from "../components/toaster";
 import { axiosInstance } from "../helper/axiosInterceptors";
 import { API_PATHS } from "./apiEndpoints";
+import { jwtDecode } from "jwt-decode";
 
 export const register = async (body) => {
   try {
@@ -42,8 +43,18 @@ export const login = async (body) => {
   try {
     const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, body);
     const token = response.data.data.token;
+
+    const decoded = jwtDecode(token);
+    const userId = decoded.id;
+    const userData = {
+      id: userId,
+      name: response.data.data.name,
+      email: response.data.data.email,
+      token,
+    };
+
     localStorage.setItem("loginToken", token);
-    localStorage.setItem("loggedInUser", JSON.stringify(response.data.data));
+    localStorage.setItem("loggedInUser", JSON.stringify(userData));
 
     showToast({
       message: `Welcome back ${response.data.data.name}`,
@@ -117,7 +128,6 @@ export const updateUser = async (id, body) => {
       message: "User Updated successfully..!",
       status: "success",
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     showToast({

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { registerThunk } from "../../features/auth/authThunk";
+import { registerThunk } from "../../features/user/authThunk";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, UserPlus } from "lucide-react";
 
@@ -12,7 +12,7 @@ export default function RegisterUser() {
   });
 
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -26,18 +26,16 @@ export default function RegisterUser() {
     e.preventDefault();
     const result = await dispatch(registerThunk(user)).unwrap();
     const savedEmail = result.data.email;
-    console.log(savedEmail);
     if (result?.data) {
       localStorage.setItem("registeredEmail", savedEmail);
       const userId = result.data.id;
-      console.log(result.data.emailVerificationTOken);
       const token = result.data.emailVerificationTOken;
       navigate(`/verify-email/${userId}/${token}`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
@@ -149,7 +147,7 @@ export default function RegisterUser() {
           {/* Login Link */}
           <div className="text-center">
             <Link
-              to="/login"
+              to="/"
               className="text-blue-600 hover:text-blue-700 font-medium hover:underline transition"
             >
               Login here

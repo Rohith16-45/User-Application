@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { emailVerify } from "../../services/authService";
+import { emailVerify } from "../../services/userService";
 import { Mail, CheckCircle, Shield } from "lucide-react";
 
 export default function VerifyEmail() {
@@ -20,8 +20,8 @@ export default function VerifyEmail() {
 
     emailVerify(userId, token)
       .then(() => {
-        localStorage.removeItem("registeredEmail")
-        navigate("/login");
+        localStorage.removeItem("registeredEmail");
+        navigate("/");
       })
       .finally(() => {
         setLoading(false);
