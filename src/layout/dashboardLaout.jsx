@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Home, Users, FileText, LogOut, User } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logout } from "../features/user/userSlice";
+import Modal from "../components/modal";
 
 const DashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,9 +76,11 @@ const DashboardLayout = ({ children }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 bottom-0 w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
+        className={`fixed top-16 left-0 bottom-0 bg-white shadow-lg z-40
+  transform transition-transform duration-300 ease-in-out
+  ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+  lg:translate-x-0
+  lg:w-64 w-full`} // ← desktop = 64 | mobile = full screen
       >
         <nav className="h-full overflow-y-auto p-4">
           <ul className="space-y-2">
@@ -110,7 +113,7 @@ const DashboardLayout = ({ children }) => {
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -120,41 +123,18 @@ const DashboardLayout = ({ children }) => {
         <div className="p-6">{children}</div>
       </main>
 
-      {/* 🚨 Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <LogOut className="text-red-600" size={24} />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Confirm Logout
-              </h3>
-            </div>
-
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to log out? You will need to login again.
-            </p>
-
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleConfirmLogout}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        show={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Confirm Logout"
+        icon={<LogOut className="text-red-600" size={24} />}
+        onConfirm={handleConfirmLogout}
+        confirmText="Logout"
+        cancelText="Cancel"
+        confirmClassName="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+      >
+        <p>Are you sure you want to log out? You will need to login again.</p>
+      </Modal>
     </div>
   );
 };
